@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Todo-list</title>
+    <link href="/source/css/todo.css" rel="stylesheet">
+  </head>
+
+  <body>
+<%
+    var errMessage = null;
+    var successful = false;
+    if (accountDuplicate) {
+        errMessage = "Account has been used. Please try another.";
+    } else if (registerError) {
+        errMessage = "Oops! We got some Error. Please try again";
+    } else if (registerSuccess) {
+        successful = true;
+        errMessage = "Success! Please login by your account and password. 5 seconds to redirect...";
+    }
+%>
+    <div class="container">
+      <div class="jumbotron">
+        <div class="loginbox">
+            Register
+            <form id="signupForm" method="post" onsubmit="if(!checkValue()) return false;">
+                <div class="inputfield"><font>Account:</font><input type="text" name="acc" value=""></div>
+                <div class="inputfield"><font>Passward:</font><input type="password"  name="pass"></div>
+                <div class="inputfield"><font>Name:</font><input type="name"  name="name"></div>
+                <button id="login" type="submit">Go!</button>
+                <div class="inputfield"><font class="<%= (registerSuccess? "": "error") %>" id="err"><%= errMessage %></font></div>
+            </form>
+        </div>
+      </div>
+      
+    </div> <!-- /container -->
+
+    <script src="/source/js/jquery-1.11.3.min.js"></script>
+    <script>
+<% if (successful) { %>
+        $(document).ready(function() {
+            var timer = setTimeout(function() { document.location.href = "/" }, 5000);
+        });
+<% } %>
+      function checkValue() {
+        if (!/^[0-9a-zA-Z]{4,}$/g.exec($('input[name="acc"]').val())) {
+            $("#err").html("Account just can use 0-9 a-z A-Z, and should over 6 character");
+            return false;
+        }
+        if (!/^[0-9a-zA-Z]{4,}$/g.exec($('input[name="pass"]').val())) {
+            $("#err").html("Password just can use 0-9 a-z A-Z, and should over 6 character");
+            return false;
+        }
+        if (/^\s*$/g.exec($('input[name="name"]').val())) {
+            $("#err").html("Name can't be empty");
+            return false;
+        }
+        return true;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Todo-list</title>
+    <link href="/source/css/todo.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="jumbotron">
+        <div class="loginbox">
+            <form id="TodoForm" method="post" action="javascript:void(0);">
+                <div class="inputfield">
+                    <font>New ToDo:</font><input type="text" id="NewEvent" name="event" value="">
+<% if (isAdmin) { %>
+                    </br>
+                    <font>User:</font><select id="Use" name="user">
+<% userTodo.forEach(function(user){ %>
+                        <option value=<%= user.id %>><%= user.name %></option>
+<% }); %>
+                    </select>
+<% } %>
+                    <button id="newTodo" type="buttom">Add</button>
+                </div>
+            </form>
+        </div>
+        <div class="logout">Logout</div>
+        
+<% userTodo.forEach(function(user){ %>
+        <div id="listArea-<%= user.id %>">
+        <h2><%= user.name %></h2>
+<% user.todo.forEach(function(todoevent){ %>
+            <div class="todoEvent" id="todo-<%= todoevent.id %>"><div class="checkPoint<%= (todoevent.done? " done":"") %>">X</div><div class=eventName"><%= todoevent.event %></div><div class="eventDel">Delete</div></div>
+<% }); %>
+        </div>
+<% }); %>
+      </div>
+      
+    </div> <!-- /container -->
+
+    <script src="/source/js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+      $(".logout").click(function() {
+        if (!confirm("Louout from this Website?"))
+          return false;
+          document.location.href = "/logout";
+      });
+      $("#newTodo").click(function() {
+        if(!checkValue())
+            return false;
+        $.post( "/list/add", $("#TodoForm").serialize(), function(data) {
+            var todo = JSON.parse(data);
+            $("#listArea-"+todo.userId).append(
+                $("<div>").attr("id", "todo-"+todo.id).addClass("todoEvent").append(
+                    $("<div>").addClass("checkPoint").html("X").click(update)
+                ).append(
+                    $("<div>").addClass("eventName").html(todo.event)
+                ).append(
+                    $("<div>").addClass("eventDel").html("Delete").click(Del)
+                )
+            );
+        })
+        .error(function(xhr) {
+            alert("Something Error, Please reflash web");
+        })
+        .always(function() {
+            $("#NewEvent").val("");
+        });
+      });
+      $(".checkPoint").click(update);
+      $(".eventDel").click(Del);
+      
+      function update() {
+        var id = $(this).parent().attr("id").substring(5);
+        $.post( "/list/update", { done: !($(this).hasClass("done")), todoId: id }, function(data) {
+            var todo = JSON.parse(data);
+            if (todo.done)
+                $("#todo-"+todo.id+" > .checkPoint").addClass("done");
+            else
+                $("#todo-"+todo.id+" > .checkPoint").removeClass("done");
+        })
+        .error(function(xhr) {
+            alert("Something Error");
+        });
+      }
+      function Del() {
+        if (!confirm("Delete this tasks?"))
+          return false;
+        var id = $(this).parent().attr("id").substring(5);
+        $.post( "/list/delete", { todoId: id }, function(data) {
+            var todo = JSON.parse(data);
+                $("#todo-"+todo.id).remove();
+        })
+        .error(function(xhr) {
+            switch(xhr.status) {
+              case 409:
+                alert("Login expired! Please reload website.");
+                document.location.href = ".";
+                break;
+              default:
+                alert("Something Error");
+            }
+            
+        });
+      }
+      function checkValue() {
+        if (/^\s*$/g.exec($('input[name="event"]').val())) {
+            alert("Please type something need to do.");
+            return false;
+        }
+        return true;
+      }
+    })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Todo-list</title>
+    <link href="/source/css/todo.css" rel="stylesheet">
+  </head>
+
+  <body>
+<%
+    var errMessage = null;
+    if (loginFailure) {
+        errMessage = "Login failure. Please check your account and password";
+    } else if (sessionExpired) {
+        errMessage = "Login expired. Please login again";
+    }
+%>
+    <div class="container">
+      <div class="jumbotron">
+        <div class="loginbox">
+            <form id="signupForm" action="/login" method="post" onsubmit="if(!checkValue()) return false;">
+                <div class="inputfield"><font>Account:</font><input type="text" name="acc" value=""></div>
+                <div class="inputfield"><font>Passward:</font><input type="password"  name="pass"></div>
+                <button id="login" type="submit">Login!</button>&nbsp;&nbsp;&nbsp;<button type="buttom" onclick="register();return false;">Create New Account</button>
+                <div class="inputfield"><font class="error" id="err"><%= errMessage%></font></div>
+            </form>
+        </div>
+      </div>
+      
+    </div> <!-- /container -->
+
+    <script src="/source/js/jquery-1.11.3.min.js"></script>
+    <script>
+      function register() {
+        document.location.href = "/register";
+      }
+      function checkValue() {
+        if (!/^[0-9a-zA-Z]+$/g.exec($('input[name="acc"]').val())) {
+            $("#err").html("Account or Password were illegal");
+            return false;
+        }
+        if (!/^[0-9a-zA-Z]+$/g.exec($('input[name="pass"]').val())) {
+            $("#err").html("Account or Password were illegal");
+            return false;
+        }
+        return true;
+      }
+    </script>
+  </body>
+</html>
